@@ -24,8 +24,6 @@
 #include "util/StreamBuffer.h"
 #include "fx/Accumulator.h"
 #include "fx/ADSR.h"
-#include "fx/BinauralSound.h"
-#include "fx/ConvolverSound.h"
 #include "fx/Delay.h"
 #include "fx/Envelope.h"
 #include "fx/Fader.h"
@@ -51,6 +49,11 @@
 #include "respec/ChannelMapperReader.h"
 #include "util/Buffer.h"
 #include "Exception.h"
+
+#ifdef WITH_CONVOLUTION
+#include "fx/BinauralSound.h"
+#include "fx/ConvolverSound.h"
+#endif
 
 #include <cassert>
 #include <cstring>
@@ -209,7 +212,7 @@ AUD_API const char* AUD_Sound_write(AUD_Sound* sound, const char* filename, AUD_
 		std::shared_ptr<IWriter> writer = FileWriter::createWriter(filename, specs, static_cast<Container>(container), static_cast<Codec>(codec), bitrate);
 		FileWriter::writeReader(reader, writer, 0, buffersize);
 	}
-	catch(Exception& e)
+	catch(Exception&)
 	{
 		return "An exception occured while writing.";
 	}
@@ -668,6 +671,8 @@ AUD_API AUD_Sound* AUD_Sound_mutable(AUD_Sound* sound)
 	}
 }
 
+#ifdef WITH_CONVOLUTION
+
 AUD_API AUD_Sound* AUD_Sound_Convolver(AUD_Sound* sound, AUD_ImpulseResponse* filter, AUD_ThreadPool* threadPool)
 {
 	assert(sound);
@@ -700,3 +705,5 @@ AUD_API AUD_Sound* AUD_Sound_Binaural(AUD_Sound* sound, AUD_HRTF* hrtfs, AUD_Sou
 		return nullptr;
 	}
 }
+
+#endif
