@@ -17,49 +17,46 @@
 #pragma once
 
 /**
- * @file LimiterReader.h
+ * @file Modulator.h
  * @ingroup fx
- * The LimiterReader class.
+ * The Modulator class.
  */
 
-#include "fx/EffectReader.h"
+#include "ISound.h"
 
 AUD_NAMESPACE_BEGIN
 
 /**
- * This reader limits another reader in start and end times.
+ * This sound plays two other factories, playing them the same time and modulating/multiplying them.
+ * \note Readers from the underlying factories must have the same sample rate
+ *       and channel count.
  */
-class AUD_API LimiterReader : public EffectReader
+class AUD_API Modulator : public ISound
 {
 private:
 	/**
-	 * The start sample: inclusive.
+	 * First played sound.
 	 */
-	const double m_start;
+	std::shared_ptr<ISound> m_sound1;
 
 	/**
-	 * The end sample: exlusive.
+	 * Second played sound.
 	 */
-	const double m_end;
+	std::shared_ptr<ISound> m_sound2;
 
 	// delete copy constructor and operator=
-	LimiterReader(const LimiterReader&) = delete;
-	LimiterReader& operator=(const LimiterReader&) = delete;
+	Modulator(const Modulator&) = delete;
+	Modulator& operator=(const Modulator&) = delete;
 
 public:
 	/**
-	 * Creates a new limiter reader.
-	 * \param reader The reader to read from.
-	 * \param start The desired start time (inclusive).
-	 * \param end The desired end time (sample exklusive), a negative value
-	 *            signals that it should play to the end.
+	 * Creates a new modulator sound.
+	 * \param sound1 The first input sound.
+	 * \param sound2 The second input sound.
 	 */
-	LimiterReader(std::shared_ptr<IReader> reader, double start = 0, double end = -1);
+	Modulator(std::shared_ptr<ISound> sound1, std::shared_ptr<ISound> sound2);
 
-	virtual void seek(int position);
-	virtual int getLength() const;
-	virtual int getPosition() const;
-	virtual void read(int& length, bool& eos, sample_t* buffer);
+	virtual std::shared_ptr<IReader> createReader();
 };
 
 AUD_NAMESPACE_END

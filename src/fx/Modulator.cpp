@@ -14,32 +14,22 @@
  * limitations under the License.
  ******************************************************************************/
 
-#include "fx/Limiter.h"
-#include "fx/LimiterReader.h"
+#include "fx/Modulator.h"
+#include "fx/ModulatorReader.h"
 
 AUD_NAMESPACE_BEGIN
 
-Limiter::Limiter(std::shared_ptr<ISound> sound,
-									   double start, double end) :
-		Effect(sound),
-		m_start(start),
-		m_end(end)
+Modulator::Modulator(std::shared_ptr<ISound> sound1, std::shared_ptr<ISound> sound2) :
+	m_sound1(sound1), m_sound2(sound2)
 {
 }
 
-double Limiter::getStart() const
+std::shared_ptr<IReader> Modulator::createReader()
 {
-	return m_start;
-}
+	std::shared_ptr<IReader> reader1 = m_sound1->createReader();
+	std::shared_ptr<IReader> reader2 = m_sound2->createReader();
 
-double Limiter::getEnd() const
-{
-	return m_end;
-}
-
-std::shared_ptr<IReader> Limiter::createReader()
-{
-	return std::shared_ptr<IReader>(new LimiterReader(getReader(), m_start, m_end));
+	return std::shared_ptr<IReader>(new ModulatorReader(reader1, reader2));
 }
 
 AUD_NAMESPACE_END

@@ -65,6 +65,8 @@ set(SRC
 	src/fx/LoopReader.cpp
 	src/fx/LowpassCalculator.cpp
 	src/fx/Lowpass.cpp
+	src/fx/Modulator.cpp
+	src/fx/ModulatorReader.cpp
 	src/fx/MutableReader.cpp
 	src/fx/MutableSound.cpp
 	src/fx/Pitch.cpp
@@ -80,7 +82,7 @@ set(SRC
 	src/fx/Volume.cpp
 	src/fx/VolumeReader.cpp
 	src/fx/VolumeSound.cpp
-	src/fx/VolumeStorage.cpp	
+	src/fx/VolumeStorage.cpp
 	src/generator/Sawtooth.cpp
 	src/generator/SawtoothReader.cpp
 	src/generator/Silence.cpp
@@ -173,6 +175,8 @@ set(PUBLIC_HDR
 	include/fx/LoopReader.h
 	include/fx/LowpassCalculator.h
 	include/fx/Lowpass.h
+	include/fx/Modulator.h
+	include/fx/ModulatorReader.h
 	include/fx/MutableReader.h
 	include/fx/MutableSound.h
 	include/fx/Pitch.h
@@ -696,8 +700,8 @@ set(LIB_DESTINATION "lib${LIB_SUFFIX}")
 # library
 
 add_library(audaspace ${LIBRARY_TYPE} ${SRC} ${HDR})
-target_link_libraries(audaspace ${LIBRARIES})  
-set_target_properties(audaspace PROPERTIES SOVERSION ${AUDASPACE_VERSION})  
+target_link_libraries(audaspace ${LIBRARIES})
+set_target_properties(audaspace PROPERTIES SOVERSION ${AUDASPACE_VERSION})
 
 install(TARGETS audaspace
 	RUNTIME DESTINATION ${BIN_DESTINATION}

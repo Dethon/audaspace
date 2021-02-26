@@ -17,48 +17,62 @@
 #pragma once
 
 /**
- * @file LimiterReader.h
+ * @file ModulatorReader.h
  * @ingroup fx
- * The LimiterReader class.
+ * The ModulatorReader class.
  */
 
-#include "fx/EffectReader.h"
+#include "IReader.h"
+#include "util/Buffer.h"
+
+#include <memory>
 
 AUD_NAMESPACE_BEGIN
 
 /**
- * This reader limits another reader in start and end times.
+ * This reader plays two readers with the same specs in parallel multiplying their samples.
  */
-class AUD_API LimiterReader : public EffectReader
+class AUD_API ModulatorReader : public IReader
 {
 private:
 	/**
-	 * The start sample: inclusive.
+	 * The first reader.
 	 */
-	const double m_start;
+	std::shared_ptr<IReader> m_reader1;
 
 	/**
-	 * The end sample: exlusive.
+	 * The second reader.
 	 */
-	const double m_end;
+	std::shared_ptr<IReader> m_reader2;
+
+	/**
+	 * Buffer used for mixing.
+	 */
+	Buffer m_buffer;
 
 	// delete copy constructor and operator=
-	LimiterReader(const LimiterReader&) = delete;
-	LimiterReader& operator=(const LimiterReader&) = delete;
+	ModulatorReader(const ModulatorReader&) = delete;
+	ModulatorReader& operator=(const ModulatorReader&) = delete;
 
 public:
 	/**
-	 * Creates a new limiter reader.
-	 * \param reader The reader to read from.
-	 * \param start The desired start time (inclusive).
-	 * \param end The desired end time (sample exklusive), a negative value
-	 *            signals that it should play to the end.
+	 * Creates a new modulator reader.
+	 * \param reader1 The first reader to read from.
+	 * \param reader2 The second reader to read from.
+	 * \exception Exception Thrown if the specs from the readers differ.
 	 */
-	LimiterReader(std::shared_ptr<IReader> reader, double start = 0, double end = -1);
+	ModulatorReader(std::shared_ptr<IReader> reader1, std::shared_ptr<IReader> reader2);
 
+	/**
+	 * Destroys the reader.
+	 */
+	virtual ~ModulatorReader();
+
+	virtual bool isSeekable() const;
 	virtual void seek(int position);
 	virtual int getLength() const;
 	virtual int getPosition() const;
+	virtual Specs getSpecs() const;
 	virtual void read(int& length, bool& eos, sample_t* buffer);
 };
 

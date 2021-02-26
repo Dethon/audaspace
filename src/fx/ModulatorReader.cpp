@@ -14,7 +14,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-#include "sequence/SuperposeReader.h"
+#include "fx/ModulatorReader.h"
 #include "Exception.h"
 
 #include <algorithm>
@@ -22,27 +22,27 @@
 
 AUD_NAMESPACE_BEGIN
 
-SuperposeReader::SuperposeReader(std::shared_ptr<IReader> reader1, std::shared_ptr<IReader> reader2) :
-	m_reader1(reader1), m_reader2(reader2)
+ModulatorReader::ModulatorReader(std::shared_ptr<IReader> reader1, std::shared_ptr<IReader> reader2) :
+    m_reader1(reader1), m_reader2(reader2)
 {
 }
 
-SuperposeReader::~SuperposeReader()
+ModulatorReader::~ModulatorReader()
 {
 }
 
-bool SuperposeReader::isSeekable() const
+bool ModulatorReader::isSeekable() const
 {
 	return m_reader1->isSeekable() && m_reader2->isSeekable();
 }
 
-void SuperposeReader::seek(int position)
+void ModulatorReader::seek(int position)
 {
 	m_reader1->seek(position);
 	m_reader2->seek(position);
 }
 
-int SuperposeReader::getLength() const
+int ModulatorReader::getLength() const
 {
 	int len1 = m_reader1->getLength();
 	int len2 = m_reader2->getLength();
@@ -51,24 +51,24 @@ int SuperposeReader::getLength() const
 	return std::max(len1, len2);
 }
 
-int SuperposeReader::getPosition() const
+int ModulatorReader::getPosition() const
 {
 	int pos1 = m_reader1->getPosition();
 	int pos2 = m_reader2->getPosition();
 	return std::max(pos1, pos2);
 }
 
-Specs SuperposeReader::getSpecs() const
+Specs ModulatorReader::getSpecs() const
 {
 	return m_reader1->getSpecs();
 }
 
-void SuperposeReader::read(int& length, bool& eos, sample_t* buffer)
+void ModulatorReader::read(int& length, bool& eos, sample_t* buffer)
 {
 	Specs specs = m_reader1->getSpecs();
 	Specs s2 = m_reader2->getSpecs();
 	if(!AUD_COMPARE_SPECS(specs, s2))
-		AUD_THROW(StateException, "Two readers with different specifiactions cannot be superposed.");
+		AUD_THROW(StateException, "Two readers with different specifiactions cannot be modulated.");
 
 	int samplesize = AUD_SAMPLE_SIZE(specs);
 
@@ -86,7 +86,7 @@ void SuperposeReader::read(int& length, bool& eos, sample_t* buffer)
 	m_reader2->read(len2, eos2, buf);
 
 	for(int i = 0; i < len2 * specs.channels; i++)
-		buffer[i] += buf[i];
+		buffer[i] *= buf[i];
 
 	length = std::max(len1, len2);
 	eos &= eos2;
